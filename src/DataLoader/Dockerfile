@@ -1,18 +1,13 @@
 # Build
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
-WORKDIR /src
+WORKDIR /app
 
-# Copy solution and project files first (for better caching)
 COPY ppp-globe.sln ./
-COPY src/Domain/Domain.csproj src/Domain/
-COPY src/DataLoader/DataLoader.csproj src/DataLoader/
+COPY src/ ./src/
 
-RUN dotnet restore ./ppp-globe.sln
+RUN dotnet restore src/DataLoader/DataLoader.csproj
 
-# Copy the rest of the source
-COPY . ./
-
-RUN dotnet publish ./src/DataLoader/DataLoader.csproj -c Release -o /app
+RUN dotnet publish src/DataLoader/DataLoader.csproj -c Release -o /app --no-restore
 
 # Runtime
 FROM mcr.microsoft.com/dotnet/runtime:8.0

@@ -1,0 +1,28 @@
+# Binaries and intermediate build artifacts
+bin/
+obj/
+
+# Visual Studio files
+.vs/
+.vscode/
+
+# Local settings and config files
+appsettings*.Development.json
+local.settings.json
+.env
+
+# gitignore-like exclusions
+.git*
+
+# Docker-related files
+Dockerfile
+docker-compose.yml
+docker-compose.*.yml
+
+# Packages (if restored during build, not copied from host)
+packages/
+
+# Test results
+TestResults/
+*.trx
+*.coverage

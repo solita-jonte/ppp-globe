@@ -38,9 +38,23 @@ services:
       db-init:
         condition: service_completed_successfully
     environment:
-      # Connection string used by Program.cs
       ConnectionStrings__PppDb: "Server=db,1433;Database=${DB_NAME};User Id=sa;Password=${SA_PASSWORD};TrustServerCertificate=True;"
     command: ["dotnet", "DataLoader.dll"]
+
+  functions-api:
+    build:
+      context: .
+      dockerfile: src/FunctionsApi/Dockerfile
+    container_name: ppp-functions-api
+    depends_on:
+      dataloader:
+        condition: service_completed_successfully
+    environment:
+      ConnectionStrings__PppDb: "Server=db,1433;Database=${DB_NAME};User Id=sa;Password=${SA_PASSWORD};TrustServerCertificate=True;"
+      AzureWebJobsStorage: "UseDevelopmentStorage=true"
+      FUNCTIONS_WORKER_RUNTIME: "dotnet-isolated"
+    ports:
+      - "7071:80"   # host:container
 
 volumes:
   sql_server_data:
