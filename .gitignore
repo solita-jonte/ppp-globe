@@ -2,6 +2,9 @@
 obj/
 bin/
 .vscode/
+.deploy*.json
+.deploy*.txt
+.deploy*.log
 
 # Azure Functions localsettings file
 local.settings.json
@@ -265,3 +268,4 @@ paket-files/
 # Python Tools for Visual Studio (PTVS)
 __pycache__/
 *.pyc
+.aider*
