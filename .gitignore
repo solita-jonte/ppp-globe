@@ -5,6 +5,7 @@ bin/
 
 # Azure Functions localsettings file
 local.settings.json
+src/Frontend/js/config.js
 
 # User-specific files
 *.suo
