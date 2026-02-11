@@ -14,7 +14,7 @@ services:
       # It will return 0 if connection is successful, non-zero otherwise.
       test: ["CMD", "bash", "-c", "(echo > /dev/tcp/localhost/1433) >/dev/null 2>&1"]
       interval: 10s
-      timeout: 5s # This check is very fast
+      timeout: 5s  # This check is very fast
       retries: 20
       start_period: 20s
 
@@ -54,7 +54,7 @@ services:
       AzureWebJobsStorage: "UseDevelopmentStorage=true"
       FUNCTIONS_WORKER_RUNTIME: "dotnet-isolated"
     ports:
-      - "7071:80"   # host:container
+      - "7071:80"
 
 volumes:
   sql_server_data:
