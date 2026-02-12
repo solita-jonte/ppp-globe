@@ -1,7 +1,8 @@
 RG_NAME="ppp-globe-rg"
 NET_NAME="ppp-globe-infra"
 SQL_SERVER_NAME="ppp-globe-sql"
-CONTAINER_REGISTRY="acr-ppp-globe"
+# Azure Container Registry name cannot contain dashes; use only lowercase letters and numbers.
+CONTAINER_REGISTRY="acrpppglobe"
 SWA_NAME="ppp-globe-swa"
 FUNCTION_APP_NAME="ppp-globe-func"
 STORAGE_ACCOUNT_NAME="pppglobestorage" # must be globally unique, adjust if needed
@@ -26,7 +27,23 @@ sanitize_ascii() {
   printf '%s' "$s"
 }
 
-ensure_az_and_swa() {
+# Read a file into a single-line string.
+# - Strips all '\r' (handles CRLF and CR)
+# - Replaces all '\n' with spaces
+# Usage: to_single_line "/path/to/file"
+to_single_line() {
+  local file="$1"
+  if [ -z "$file" ] || [ ! -f "$file" ]; then
+    echo "to_single_line: file not found: $file" >&2
+    return 1
+  fi
+
+  # Remove carriage returns, then replace newlines with spaces.
+  # Everything stays in RAM; no temp files.
+  tr -d '\r' < "$file" | tr '\n' ' '
+}
+
+ensure_az() {
   # Check that az is installed
   if ! command -v az >/dev/null 2>&1; then
     echo "Error: Azure CLI (az) is not installed or not on PATH." >&2
@@ -38,6 +55,22 @@ ensure_az_and_swa() {
   if ! az account show -o none >/dev/null 2>&1; then
     echo "Error: You are not logged in to Azure CLI." >&2
     echo "Run: az login" >&2
+    exit 1
+  fi
+}
+
+ensure_docker() {
+  # Check that docker CLI is installed
+  if ! command -v docker >/dev/null 2>&1; then
+    echo "Error: Docker is not installed or not on PATH." >&2
+    echo "Install Docker Desktop and ensure the docker CLI is available." >&2
+    exit 1
+  fi
+
+  # Check that Docker daemon (Docker Desktop) is running
+  if ! docker info >/dev/null 2>&1; then
+    echo "Error: Docker daemon does not appear to be running." >&2
+    echo "Start Docker Desktop and wait until it is fully up, then retry." >&2
     exit 1
   fi
 }
