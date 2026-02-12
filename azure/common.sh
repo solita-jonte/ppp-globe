@@ -7,6 +7,25 @@ FUNCTION_APP_NAME="ppp-globe-func"
 STORAGE_ACCOUNT_NAME="pppglobestorage" # must be globally unique, adjust if needed
 LOCATION="${LOCATION:-westeurope}"      # can be overridden via .env
 
+# Sanitize a string to be safe for Azure resource names / tags where needed.
+# - Lowercase
+# - Replace any non [a-z0-9-] with '-'
+# - Collapse multiple '-' into one
+# - Trim leading/trailing '-'
+sanitize_ascii() {
+  local input="$1"
+  # to lowercase
+  local s
+  s=$(printf '%s' "$input" | tr '[:upper:]' '[:lower:]')
+  # replace non allowed chars with '-'
+  s=$(printf '%s' "$s" | sed 's/[^a-z0-9-]/-/g')
+  # collapse multiple '-'
+  s=$(printf '%s' "$s" | sed 's/-\{2,\}/-/g')
+  # trim leading/trailing '-'
+  s=$(printf '%s' "$s" | sed 's/^-*//; s/-*$//')
+  printf '%s' "$s"
+}
+
 ensure_az_and_swa() {
   # Check that az is installed
   if ! command -v az >/dev/null 2>&1; then

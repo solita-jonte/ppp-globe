@@ -13,9 +13,14 @@ REPO_ROOT="$SCRIPT_DIR/.."
 ensure_az_and_swa
 
 # Ensure required env vars
+SA_USERNAME=sa
 : "${SA_PASSWORD:?SA_PASSWORD must be set in .env}"
 : "${DB_NAME:?DB_NAME must be set in .env}"
 : "${DB_PORT:?DB_PORT must be set in .env}"
+
+RAW_OWNER="${USER:-${USERNAME:-unknown}}"
+OWNER_TAG="$(sanitize_ascii "$RAW_OWNER")"
+DUEDATE_TAG="$(date -d "30 days" "+%Y-%m-%d")"
 
 ########################################
 # Resource Group
@@ -26,6 +31,7 @@ echo "Create Resource Group '$RG_NAME' in '$LOCATION'"
 az group create \
   -n "$RG_NAME" \
   -l "$LOCATION" \
+  --tags Owner="$OWNER_TAG" DueDate="$DUEDATE_TAG" \
   -o json > .deploy-rg.json
 
 ########################################
@@ -38,7 +44,7 @@ az sql server create \
   -g "$RG_NAME" \
   -n "$SQL_SERVER_NAME" \
   -l "$LOCATION" \
-  -u "sa" \
+  -u "$SA_USERNAME" \
   -p "$SA_PASSWORD" \
   -o json > .deploy-sql-server.json
 
@@ -123,7 +129,7 @@ az containerapp job create \
   --memory 0.5Gi \
   --env-vars \
     "SA_PASSWORD=$SA_PASSWORD" \
-  --command "/opt/mssql-tools/bin/sqlcmd" "-S" "$SQL_SERVER_NAME.database.windows.net" "-U" "sa" "-P" "$SA_PASSWORD" "-d" "$DB_NAME" "-Q" "$DB_INIT_SQL" \
+  --command "/opt/mssql-tools/bin/sqlcmd" "-S" "$SQL_SERVER_NAME.database.windows.net" "-U" "$SA_USERNAME" "-P" "$SA_PASSWORD" "-d" "$DB_NAME" "-Q" "$DB_INIT_SQL" \
   -o json > .deploy-db-init-job.json
 
 echo "Create DataLoader job"
@@ -140,7 +146,7 @@ az containerapp job create \
   --cpu 0.5 \
   --memory 1Gi \
   --env-vars \
-    "ConnectionStrings__PppDb=Server=$SQL_SERVER_NAME.database.windows.net,$DB_PORT;Database=$DB_NAME;User Id=sa;Password=$SA_PASSWORD;TrustServerCertificate=True;" \
+    "ConnectionStrings__PppDb=Server=$SQL_SERVER_NAME.database.windows.net,$DB_PORT;Database=$DB_NAME;User Id=$SA_USERNAME;Password=$SA_PASSWORD;TrustServerCertificate=True;" \
   -o json > .deploy-dataloader-job.json
 
 ########################################
