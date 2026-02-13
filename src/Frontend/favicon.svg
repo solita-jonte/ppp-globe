@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="512" height="512" viewBox="0 0 512 512">
+<style type="text/css">
+	.favicon-path{fill-rule:evenodd;clip-rule:evenodd;fill:#282828;}
+	@media ( prefers-color-scheme: dark ) {
+		.favicon-path{fill:#ffffff;}
+	}
+</style>
+	<path class="favicon-path" d="M45.7,512V256h128v256H45.7z M338.3,256V0h128v256H338.3z M192,512V0h128v512H192z"/>
+</svg>

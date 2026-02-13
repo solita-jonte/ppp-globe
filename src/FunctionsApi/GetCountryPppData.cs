@@ -55,6 +55,7 @@ public class GetCountryPppData
         var data = await _db.Countries
             .Select(c => new CountryValuesDto(
                 c.Iso2,
+                c.Iso3,
                 c.Name,
                 c.PppValues
                     // Apply the year filter here

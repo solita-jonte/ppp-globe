@@ -3,10 +3,30 @@
   <head>
     <meta charset="utf-8" />
     <title>PPP-adjusted GDP/capita</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
     <link rel="stylesheet" href="css/globe.css">
+    <script src="js/config.js"></script>
   </head>
   <body>
+    <!-- Year slider / progress bar -->
+    <div id="year-controls">
+      <label for="year-slider">Year: <span id="year-label">1990</span></label>
+      <input
+        id="year-slider"
+        type="range"
+        min="1990"
+        max="2026"
+        step="1"
+        value="1990" />
+    </div>
+
     <div id="globe"></div>
+
+    <!-- Load THREE and three-globe as UMD scripts (globals: THREE, ThreeGlobe) -->
+    <script src="https://unpkg.com/three@0.132.2/build/three.min.js"></script>
+    <script src="https://unpkg.com/three-globe@2.24.10/dist/three-globe.min.js"></script>
+
+    <!-- Our app script (classic script, not a module) -->
     <script src="js/globe.js"></script>
   </body>
 </html>

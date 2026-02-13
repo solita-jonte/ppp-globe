@@ -13,6 +13,7 @@ BEGIN
     (
         Id       INT IDENTITY(1,1) PRIMARY KEY,
         Iso2     CHAR(2) NOT NULL UNIQUE,
+        Iso3     CHAR(3) NOT NULL UNIQUE,
         Name     NVARCHAR(200) NOT NULL
     );
 END

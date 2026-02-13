@@ -1,2 +1,112 @@
-body { margin: 0; overflow: hidden; }
-#globe { position: fixed; top: 0; left: 0; width: 100%; height: 100%; }
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+/* Black background and base font */
+body {
+  background-color: #000000;
+  color: #f5f5f5;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Year controls bar at the top */
+#year-controls {
+  box-sizing: border-box;
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: linear-gradient(to bottom, #111111, #050505);
+  border-bottom: 1px solid #222222;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
+  z-index: 10;
+}
+
+/* Label + year text */
+#year-controls label {
+  font-size: 14px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #cccccc;
+}
+
+#year-label {
+  font-weight: 600;
+  color: #ffffff;
+  margin-left: 4px;
+}
+
+/* Make the slider take the remaining horizontal space */
+#year-slider {
+  flex: 1;
+}
+
+/* Custom slider styling (WebKit/Blink) */
+#year-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 6px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #1f77b4, #ff7f0e, #2ca02c, #d62728);
+  outline: none;
+  cursor: pointer;
+}
+
+/* Track (Firefox) */
+#year-slider::-moz-range-track {
+  height: 6px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #1f77b4, #ff7f0e, #2ca02c, #d62728);
+}
+
+/* Thumb (WebKit/Blink) */
+#year-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 2px solid #1f77b4;
+  box-shadow: 0 0 0 4px rgba(31, 119, 180, 0.35);
+  transition: transform 0.1s ease-out, box-shadow 0.1s ease-out, border-color 0.1s ease-out;
+}
+
+/* Thumb (Firefox) */
+#year-slider::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 2px solid #1f77b4;
+  box-shadow: 0 0 0 4px rgba(31, 119, 180, 0.35);
+  transition: transform 0.1s ease-out, box-shadow 0.1s ease-out, border-color 0.1s ease-out;
+}
+
+/* Hover / active states */
+#year-slider:hover::-webkit-slider-thumb,
+#year-slider:active::-webkit-slider-thumb,
+#year-slider:hover::-moz-range-thumb,
+#year-slider:active::-moz-range-thumb {
+  transform: scale(1.05);
+  border-color: #ff7f0e;
+  box-shadow: 0 0 0 6px rgba(255, 127, 14, 0.4);
+}
+
+/* Globe container takes the rest of the viewport height */
+#globe {
+  flex: 1;
+  position: relative;
+}
+
+/* Make the canvas fill the globe container */
+#globe canvas {
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+}

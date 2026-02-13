@@ -11,4 +11,4 @@ ENV SA_PASSWORD="" \
     SQL_SERVER_USER=""
 
 # Run the init script against the target SQL Server.
-ENTRYPOINT ["/bin/bash", "-c", "/opt/mssql-tools/bin/sqlcmd -S \"$SQL_SERVER_HOST\" -U \"$SQL_SERVER_USER\" -P \"$SA_PASSWORD\" -d \"$DB_NAME\" -i /init/01-init.sql"]
+ENTRYPOINT ["/bin/bash", "-c", "/opt/mssql-tools/bin/sqlcmd -S \"$SQL_SERVER_HOST\" -U \"$SQL_SERVER_USER\" -P \"$SA_PASSWORD\" -i /init/01-init.sql"]

@@ -41,15 +41,17 @@ foreach (var item in countryArray.EnumerateArray())
     }
 
     var iso2 = item.GetProperty("iso2Code").GetString()!;
+    var iso3 = item.GetProperty("id").GetString()!;
     var countryName = item.GetProperty("name").GetString()!;
 
     // Check if already in DB
-    var exists = await db.Countries.AnyAsync(c => c.Iso2 == iso2);
+    var exists = await db.Countries.AnyAsync(c => c.Iso3 == iso3);
     if (!exists)
     {
         countriesToInsert.Add(new Country
         {
             Iso2 = iso2,
+            Iso3 = iso3,
             Name = countryName
         });
     }
