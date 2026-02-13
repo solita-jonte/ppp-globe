@@ -9,3 +9,5 @@ SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 ensure_az
 
 az group delete -n "$RG_NAME" --yes --no-wait
+
+echo "This is going to take a long time. Check in Azure Portal to verify before re-deploying."

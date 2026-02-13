@@ -27,22 +27,6 @@ sanitize_ascii() {
   printf '%s' "$s"
 }
 
-# Read a file into a single-line string.
-# - Strips all '\r' (handles CRLF and CR)
-# - Replaces all '\n' with spaces
-# Usage: to_single_line "/path/to/file"
-to_single_line() {
-  local file="$1"
-  if [ -z "$file" ] || [ ! -f "$file" ]; then
-    echo "to_single_line: file not found: $file" >&2
-    return 1
-  fi
-
-  # Remove carriage returns, then replace newlines with spaces.
-  # Everything stays in RAM; no temp files.
-  tr -d '\r' < "$file" | tr '\n' ' '
-}
-
 ensure_az() {
   # Check that az is installed
   if ! command -v az >/dev/null 2>&1; then
@@ -71,6 +55,15 @@ ensure_docker() {
   if ! docker info >/dev/null 2>&1; then
     echo "Error: Docker daemon does not appear to be running." >&2
     echo "Start Docker Desktop and wait until it is fully up, then retry." >&2
+    exit 1
+  fi
+}
+
+ensure_swa() {
+  # Check that Azure Static Web Apps CLI (swa) is installed
+  if ! command -v swa >/dev/null 2>&1; then
+    echo "Error: 'swa' (Azure Static Web Apps CLI) is not installed or not on PATH." >&2
+    echo "Install it with: npm install -g @azure/static-web-apps-cli" >&2
     exit 1
   fi
 }
@@ -106,5 +99,66 @@ wait_for_condition() {
 
     echo "Still waiting for: $description (current: '$value', expected: '$expected')"
     sleep "$interval_seconds"
+  done
+}
+
+# Wait for a Container Apps job to have at least one run in a terminal state.
+# Succeeds when any run has status 'Succeeded' or 'Failed'.
+# Fails on timeout or if the last seen terminal status is 'Failed'.
+#
+# Usage:
+#   wait_for_job_completion "job-name" "resource-group" [timeout_seconds] [interval_seconds]
+wait_for_job_completion() {
+  local job_name="$1"
+  local resource_group="$2"
+  local timeout_seconds="${3:-900}"   # default 15 min
+  local interval_seconds="${4:-10}"
+
+  echo "Waiting for Container Apps job '$job_name' in resource group '$resource_group' to complete..."
+
+  local start
+  start=$(date +%s)
+  local last_status=""
+
+  while true; do
+    local now
+    now=$(date +%s)
+    local elapsed=$((now - start))
+    if (( elapsed > timeout_seconds )); then
+      echo "Timeout waiting for job '$job_name' to complete. Last known status: '$last_status'" >&2
+      return 1
+    fi
+
+    # Query the most recent run status (if any)
+    local status
+    status=$(az containerapp job execution list \
+      --name "$job_name" \
+      --resource-group "$resource_group" \
+      --query "[0].properties.status" \
+      -o tsv 2>/dev/null || echo "")
+
+    if [[ -z "$status" ]]; then
+      echo "No executions found yet for job '$job_name'. Waiting..."
+      sleep "$interval_seconds"
+      continue
+    fi
+
+    last_status="$status"
+    echo "Latest execution status for job '$job_name': $status"
+
+    case "$status" in
+      Succeeded)
+        echo "Job '$job_name' completed successfully."
+        return 0
+        ;;
+      Failed)
+        echo "Job '$job_name' failed." >&2
+        return 1
+        ;;
+      *)
+        # Pending, Running, etc.
+        sleep "$interval_seconds"
+        ;;
+    esac
   done
 }

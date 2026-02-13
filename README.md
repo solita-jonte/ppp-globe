@@ -99,6 +99,8 @@ DB_PORT=1433
 
 2.  **Init and deploy:**
 
+    This takes a while:
+
     ```bash
     ./azure/deploy.sh
     ```
@@ -112,3 +114,5 @@ DB_PORT=1433
     ```bash
     ./azure/teardown.sh
     ```
+
+    Note that it may take a long time to finalize. I just saw the Container App Environment take 15 minutes to delete...

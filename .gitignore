@@ -5,6 +5,7 @@ bin/
 .deploy*.json
 .deploy*.txt
 .deploy*.log
+*.zip
 
 # Azure Functions localsettings file
 local.settings.json
