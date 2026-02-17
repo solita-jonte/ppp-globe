@@ -59,15 +59,6 @@ ensure_docker() {
   fi
 }
 
-ensure_swa() {
-  # Check that Azure Static Web Apps CLI (swa) is installed
-  if ! command -v swa >/dev/null 2>&1; then
-    echo "Error: 'swa' (Azure Static Web Apps CLI) is not installed or not on PATH." >&2
-    echo "Install it with: npm install -g @azure/static-web-apps-cli" >&2
-    exit 1
-  fi
-}
-
 wait_for_condition() {
   local description="$1"
   local cmd="$2"
