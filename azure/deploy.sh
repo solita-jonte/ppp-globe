@@ -112,6 +112,7 @@ ACR_PASSWORD=$(az acr credential show -n "$CONTAINER_REGISTRY" --query passwords
 DATALOADER_TAG="${DATALOADER_TAG:-sbx}"
 DB_INIT_TAG="${DB_INIT_TAG:-sbx}"
 FUNCTIONS_API_TAG="${FUNCTIONS_API_TAG:-sbx}"
+FRONTEND_TAG="${FRONTEND_TAG:-sbx}"
 
 echo "Build and push DB init image"
 docker build \
@@ -246,61 +247,64 @@ az functionapp config appsettings set \
     "ConnectionStrings__PppDb=Server=tcp:$SQL_SERVER_NAME.database.windows.net,$DB_PORT;Database=$DB_NAME;Uid=$SA_USERNAME;Pwd=$SA_PASSWORD;Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;" \
   -o json > .deploy-log-functionapp-appsettings.json
 
+az functionapp cors add \
+  -g "$RG_NAME" \
+  -n "$FUNCTION_APP_NAME" \
+  --allowed-origins 'https://*' \
+  -o json > .deploy-log-functionapp-cors.json
+
 echo "Publish Function App"
 
 pushd src/FunctionsApi
-func azure functionapp publish "$FUNCTION_APP_NAME"
+func azure functionapp publish "$FUNCTION_APP_NAME" --dotnet-isolated
 popd
 
-API_BASE_URL=$(az functionapp show \
+API_BASE_HOST=$(az functionapp show \
   -g "$RG_NAME" \
   -n "$FUNCTION_APP_NAME" \
   --query defaultHostName -o tsv)
-API_BASE_URL="https://$API_BASE_URL/api"
+API_BASE_URL="https://$API_BASE_HOST/api"
 
 ########################################
-# Static Web App (SWA) deployment
+# Frontend Container App build + deploy
 ########################################
 
-echo "Prepare frontend config.js with API base URL '$API_BASE_URL'"
+FRONTEND_APP_NAME="${FRONTEND_APP_NAME:-ppp-globe-frontend}"
 
-cp "$REPO_ROOT/src/Frontend/js/config.template.js" "$REPO_ROOT/src/Frontend/js/config.js"
+echo "Build and push Frontend image"
+docker build \
+  -f "$REPO_ROOT/src/Frontend/Dockerfile" \
+  -t "$ACR_LOGIN_SERVER/frontend:$FRONTEND_TAG" \
+  --build-arg API_BASE_URL="$API_BASE_URL" \
+  "$REPO_ROOT" > .deploy-log-frontend-build.txt
+docker push "$ACR_LOGIN_SERVER/frontend:$FRONTEND_TAG" > .deploy-log-frontend-push.txt
 
-perl -pi -e "s|__API_BASE_URL__|$API_BASE_URL|g" "$REPO_ROOT/src/Frontend/js/config.js"
+echo "Create Frontend Container App '$FRONTEND_APP_NAME'"
 
-echo "Create Static Web App '$SWA_NAME'"
-
-az staticwebapp create \
-  -n "$SWA_NAME" \
-  -g "$RG_NAME" \
-  -l "$LOCATION" \
-  --sku Free \
-  -o json > .deploy-log-swa-create.json
-
-echo "Upload Static Web App content from src/Frontend using swa CLI"
-
-SWA_TOKEN=$(az staticwebapp secrets list \
-  --name "$SWA_NAME" \
+az containerapp create \
+  --name "$FRONTEND_APP_NAME" \
   --resource-group "$RG_NAME" \
-  --query "properties.apiKey" -o tsv)
-
-swa deploy \
-  --env production \
-  --app-location "src/Frontend" \
-  --deployment-token "$SWA_TOKEN" \
-  --no-use-keychain
+  --environment "$CONTAINERAPPS_ENV_NAME" \
+  --image "$ACR_LOGIN_SERVER/frontend:$FRONTEND_TAG" \
+  --registry-server "$ACR_LOGIN_SERVER" \
+  --registry-username "$ACR_USERNAME" \
+  --registry-password "$ACR_PASSWORD" \
+  --ingress external \
+  --target-port 4173 \
+  --transport auto \
+  -o json > .deploy-log-frontend-ca.json
 
 ########################################
 # Output frontend URL
 ########################################
 
-SWA_HOSTNAME=$(az staticwebapp show \
-  -n "$SWA_NAME" \
-  -g "$RG_NAME" \
-  --query "defaultHostname" \
+FRONTEND_FQDN=$(az containerapp show \
+  --name "$FRONTEND_APP_NAME" \
+  --resource-group "$RG_NAME" \
+  --query "properties.configuration.ingress.fqdn" \
   -o tsv)
 
-FRONTEND_URL="https://$SWA_HOSTNAME"
+FRONTEND_URL="https://$FRONTEND_FQDN"
 echo "Deployment complete."
 echo "Point your browser towards: $FRONTEND_URL"
 echo "Run ./azure/teardown.sh when done to remove all Azure resources."

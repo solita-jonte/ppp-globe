@@ -1,3 +1,0 @@
-window.APP_CONFIG = {
-  apiBaseUrl: "__API_BASE_URL__"
-};

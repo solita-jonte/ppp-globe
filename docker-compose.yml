@@ -60,26 +60,18 @@ services:
     ports:
       - "7071:80"
 
-  swa:
-    image: mcr.microsoft.com/devcontainers/javascript-node:20
-    container_name: ppp-swa
-    working_dir: /workspace
-    volumes:
-      - ./src/Frontend:/workspace
-    command: >
-      bash -c "
-        set -e;
-        # Create config.js from template
-        cp js/config.template.js js/config.js;
-        perl -pi -e \"s|__API_BASE_URL__|http://127.0.0.1:7071/api|g\" js/config.js;
-        npm install -g @azure/static-web-apps-cli;
-        swa start . --port 4280 --host 0.0.0.0
-      "
+  frontend:
+    build:
+      context: .
+      dockerfile: src/Frontend/Dockerfile
+      args:
+        API_BASE_URL: "http://127.0.0.1:7071/api"
+    container_name: ppp-frontend
     depends_on:
       functions-api:
         condition: service_started
     ports:
-      - "4280:4280"
+      - "4173:4173"
 
 volumes:
   sql_server_data:

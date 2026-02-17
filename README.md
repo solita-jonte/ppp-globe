@@ -23,11 +23,16 @@ serverless backend API plus a JavaScript frontend that will serve and visualize 
   - Azure Functions API to serve the aggregated PPP data in JSON format.
 
 - **Frontend view**
-  - JavaScript frontend to render a globe with a time slider based on the DB data.
+  - TypeScript frontend to render a globe with a time slider based on the DB data.
 
 - **Deploy scripts**
   - Utilizing Azure DevOps piplines for building Docker containers, then in turn uses Terraform for creating infra and
   deploying.
+
+### Quirks
+
+I couldn't get the FunctionApi CORS stuff working (at least not in my local docker-compose version) without manually
+injecting the CORS headers inside the endpoint.
 
 ## Project Structure
 
@@ -82,6 +87,7 @@ DB_PORT=1433
         -   Populates the `Country` table.
         -   Downloads PPP GDP per capita (`NY.GDP.PCAP.PP.KD`) and stores it in `PppGdpPerCapita`.
     -   `functions-api`: starts the serverless hosting of the data
+    -   `swa`: builds and starts the servicing of the frontend index.html, etc.
 
 3.  **Inspect the data:**
 

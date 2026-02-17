@@ -66,6 +66,7 @@ public class GetCountryPppData
             .ToListAsync();
 
         var response = req.CreateResponse(HttpStatusCode.OK);
+        CorsHelper.AllowAny(response); // Yuck!
         await response.WriteAsJsonAsync(data); // Serialize the result to JSON
         return response;
     }
