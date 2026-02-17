@@ -162,6 +162,7 @@ az containerapp job create \
   --memory 0.5Gi \
   --env-vars \
     "SA_PASSWORD=$SA_PASSWORD" \
+    "CONNECT_DB_NAME=$DB_NAME" \
     "DB_NAME=$DB_NAME" \
     "SQL_SERVER_HOST=$SQL_SERVER_NAME.database.windows.net" \
     "SQL_SERVER_USER=$SA_USERNAME" \

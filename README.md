@@ -1,9 +1,11 @@
 # PPP Globe
 
+![PPP Globe](screenshot.jpg)
+
 PPP Globe is a small multi-component project for exploring how purchasing power parity (PPP)–adjusted GDP per capita
 has developed across countries over time, and ultimately visualizing it on an interactive 3D globe. The stack consists
 of a SQL Server database, a C# data loader that pulls data from the World Bank API into that database, and a C#
-serverless backend API plus a JavaScript frontend that will serve and visualize the data.
+serverless backend API plus a TypeScript frontend that visualize the data.
 
 ## Components
 
@@ -41,10 +43,9 @@ ppp-globe/
 ├─ README.md
 ├─ .env
 ├─ docker-compose.yml
-├─ db/
-│  ├─ data/
-│  └─ init/
-│     └─ 01-init.sql
+:
+├─ sql_init/
+│  └─ 01-init.sql
 ├─ azure/
 │  ├─ deploy.sh
 │  └─ teardown.sh
@@ -72,13 +73,17 @@ DB_PORT=1433
 
 ## How to Run on Your Dev Machine
 
+1.  **Create the config:**
+
+    Do as listed above to create an `.env` file.
+
 1.  **Start everything with Docker:**
 
     ```bash
     docker-compose up --build
     ```
 
-2.  **What happens:**
+1.  **What happens:**
     
     -   `db`: SQL Server starts and listens on `localhost:${DB_PORT}`.
     -   `db-init`: runs `db/init/01-init.sql` to create `PppDb` DB, `Country`, and `PppGdpPerCapita` tables.
@@ -89,7 +94,7 @@ DB_PORT=1433
     -   `functions-api`: starts the serverless hosting of the data
     -   `swa`: builds and starts the servicing of the frontend index.html, etc.
 
-3.  **Inspect the data:**
+1.  **Inspect the data:**
 
     ```bash
     curl "http://127.0.0.1:7071/api/country-ppp?startYear=2018"
@@ -97,13 +102,17 @@ DB_PORT=1433
 
 ## How to Run on Azure
 
+1.  **Create the config:**
+
+    Do as listed above to create an `.env` file.
+
 1.  **Login:**
 
     ```bash
     az login
     ```
 
-2.  **Init and deploy:**
+1.  **Init and deploy:**
 
     This takes a while:
 
@@ -111,14 +120,15 @@ DB_PORT=1433
     ./azure/deploy.sh
     ```
 
-3.  **View the globe:**
+1.  **View the globe:**
 
     Open the browser and point it towards the URL output from `deploy.sh`.
 
-4.  **Teardown infra:**
+1.  **Teardown infra:**
 
     ```bash
     ./azure/teardown.sh
     ```
 
-    Note that it may take a long time to finalize. I just saw the Container App Environment take 15 minutes to delete...
+    Note that it may take a long time to finalize the teardown. I just saw the Container App Environment take 15
+    minutes to delete...

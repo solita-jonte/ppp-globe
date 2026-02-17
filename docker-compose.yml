@@ -28,6 +28,7 @@ services:
         condition: service_healthy
     environment:
       SA_PASSWORD: "${SA_PASSWORD}"
+      CONNECT_DB_NAME: "master"
       DB_NAME: "${DB_NAME}"
       SQL_SERVER_HOST: "db"
       SQL_SERVER_USER: "sa"

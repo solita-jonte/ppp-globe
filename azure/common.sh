@@ -6,7 +6,7 @@ CONTAINER_REGISTRY="acrpppglobe"
 SWA_NAME="ppp-globe-swa"
 FUNCTION_APP_NAME="ppp-globe-func"
 STORAGE_ACCOUNT_NAME="pppglobestorage" # must be globally unique, adjust if needed
-LOCATION="${LOCATION:-westeurope}"      # can be overridden via .env
+LOCATION="${LOCATION:-westeurope}"  # can be overridden via .env
 
 # Sanitize a string to be safe for Azure resource names / tags where needed.
 # - Lowercase
@@ -79,9 +79,14 @@ wait_for_condition() {
       return 1
     fi
 
-    # Evaluate command
+    # Evaluate command, but do not let non-zero exit (e.g. ResourceNotFound) break the script.
+    # We treat any error as "no value yet" and keep polling.
     local value
-    value=$(eval "$cmd")
+    if ! value=$(eval "$cmd" 2>/dev/null); then
+      echo "Command for '$description' not ready yet (command failed). Retrying..."
+      sleep "$interval_seconds"
+      continue
+    fi
 
     if [[ "$value" == "$expected" ]]; then
       echo "Condition met: $description"
