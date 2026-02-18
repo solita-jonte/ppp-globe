@@ -94,11 +94,15 @@ DB_PORT=1433
     -   `functions-api`: starts the serverless hosting of the data
     -   `swa`: builds and starts the servicing of the frontend index.html, etc.
 
-1.  **Inspect the data:**
+1.  **Inspect the data:** (optional)
 
     ```bash
-    curl "http://127.0.0.1:7071/api/country-ppp?startYear=2018"
+    curl "http://127.0.0.1:7071/api/country-ppp?startYear=2022"
     ```
+
+1.  **Show the globe:**
+
+    Point your browser to [http://localhost:4173/](http://localhost:4173/).
 
 ## How to Run on Azure
 
@@ -120,9 +124,13 @@ DB_PORT=1433
     ./azure/deploy.sh
     ```
 
+1.  **Inspect the data:** (optional)
+
+    Click [here](https://ppp-globe-func.azurewebsites.net/api/country-ppp?startYear=2023).
+
 1.  **View the globe:**
 
-    Open the browser and point it towards the URL output from `deploy.sh`.
+    Open the browser and point it towards the URL output from `deploy.sh` (something like https://ppp-globe-frontend.abc-123.westeurope.azurecontainerapps.io/).
 
 1.  **Teardown infra:**
 
