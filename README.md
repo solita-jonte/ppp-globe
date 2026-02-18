@@ -4,7 +4,7 @@
 
 PPP Globe is a small multi-component project for exploring how purchasing power parity (PPP)–adjusted GDP per capita
 has developed across countries over time, and ultimately visualizing it on an interactive 3D globe. The stack consists
-of a SQL Server database, a C# data loader that pulls data from the World Bank API into that database, and a C#
+of an SQL Server database, a C# data loader that pulls data from the World Bank API into that database, and a C#
 serverless backend API plus a TypeScript frontend that visualize the data.
 
 ## Components
@@ -28,8 +28,9 @@ serverless backend API plus a TypeScript frontend that visualize the data.
   - TypeScript frontend to render a globe with a time slider based on the DB data.
 
 - **Deploy scripts**
-  - Utilizing Azure DevOps piplines for building Docker containers, then in turn uses Terraform for creating infra and
-  deploying.
+  - Utilizing Azure CLI to create and deploy the containers. Since Solita's sandbox subscription has a policy against
+    RBAC, I wasn't able to use a container for deploying to Azure Functions, and instead simply used `func` (Azure
+    Functions Core Tools func) instead.
 
 ### Quirks
 
@@ -92,7 +93,7 @@ DB_PORT=1433
         -   Populates the `Country` table.
         -   Downloads PPP GDP per capita (`NY.GDP.PCAP.PP.KD`) and stores it in `PppGdpPerCapita`.
     -   `functions-api`: starts the serverless hosting of the data
-    -   `swa`: builds and starts the servicing of the frontend index.html, etc.
+    -   `frontend`: builds and starts the servicing index.html and a small TypeScript app.
 
 1.  **Inspect the data:** (optional)
 
@@ -130,7 +131,7 @@ DB_PORT=1433
 
 1.  **View the globe:**
 
-    Open the browser and point it towards the URL output from `deploy.sh` (something like https://ppp-globe-frontend.abc-123.westeurope.azurecontainerapps.io/).
+    Open the browser and point it towards the URL output from `deploy.sh`.
 
 1.  **Teardown infra:**
 

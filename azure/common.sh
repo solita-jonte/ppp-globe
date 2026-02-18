@@ -59,6 +59,15 @@ ensure_docker() {
   fi
 }
 
+ensure_func() {
+  # Check that Azure Functions Core Tools (func) is installed
+  if ! command -v func >/dev/null 2>&1; then
+    echo "Error: Azure Functions Core Tools (func) is not installed or not on PATH." >&2
+    echo "Try: winget install -e --id Microsoft.AzureFunctionsCoreTools" >&2
+    exit 1
+  fi
+}
+
 wait_for_condition() {
   local description="$1"
   local cmd="$2"

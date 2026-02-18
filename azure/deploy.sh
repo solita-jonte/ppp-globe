@@ -12,6 +12,7 @@ REPO_ROOT="$SCRIPT_DIR/.."
 # Ensure required CLIs and login
 ensure_az
 ensure_docker
+ensure_func
 
 # Ensure required env vars
 # Azure SQL does not allow 'sa' as admin login; use a custom admin instead.
